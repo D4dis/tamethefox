@@ -16,91 +16,36 @@
   <!-- Interface de chat -->
   @if (isConnected) {
     <div class="chat-interface">
-      <!-- Liste des utilisateurs connectés -->
-      <div class="users-list">
-        <h4>Utilisateurs connectés ({{ users.length }})</h4>
-        <div class="users-container">
-          @for (user of users; track user.id) {
-            <div class="user-card">
-              <div class="user-info">
-                <span class="user-emote">{{ user.emote }}</span>
-                <span class="user-display-name">{{ getUserDisplayName(user) }}</span>
-              </div>
-              <div class="user-actions">
-                <button
-                  class="btn btn-sm btn-secondary"
-                  (click)="selectTargetUser(selectedTargetUser?.id === user.id ? null : user)"
-                  [ngClass]="{'active': selectedTargetUser?.id === user.id}">
-                  {{ selectedTargetUser?.id === user.id ? 'Public' : 'Privé' }}
-                </button>
-                <input
-                  class="form-input form-input-sm"
-                  #pseudoInput
-                  placeholder="Donner un pseudo"
-                  (keyup.enter)="assignPseudoToUser(user, pseudoInput.value); pseudoInput.value = ''">
-                <input
-                  class="form-input form-input-sm"
-                  #noteInput
-                  placeholder="Ajouter une note"
-                  (keyup.enter)="addNoteToUser(user, noteInput.value); noteInput.value = ''">
-              </div>
-              @if (user.notes && user.notes.length > 0) {
-                <div class="user-notes">
-                  @for (note of user.notes; track note.id) {
-                    <div class="note">{{ note.content }}</div>
-                  }
-                </div>
-              }
-            </div>
-          }
-        </div>
-      </div>
-
       <!-- Zone des messages -->
       <div class="messages-area">
         <h4>Messages</h4>
         <div class="messages-container">
-          @for (msg of messages; track ('id' in msg) ? msg.id : $index) {
-            @if (isMessageForCurrentUser(msg)) {
-              <div class="message" [ngClass]="getMessageClass(msg)">
-                <span class="sender-info">
-                  <span class="sender-emote">{{ getMessageSenderEmote(msg) }}</span>
-                  <span class="sender-name">{{ getMessageSenderName(msg) }}</span>
-                </span>
-                @if (('isPrivate' in msg) && msg.isPrivate) {
-                  <span class="private-indicator">(privé)</span>
-                }:
-                <span class="text">{{ msg.message }}</span>
-                @if (getMessageTimestamp(msg)) {
-                  <span class="timestamp">{{ getMessageTimestamp(msg) | date:'short' }}</span>
-                }
-              </div>
-            }
+          @for (msg of messages; track msg.id || $index) {
+            <div class="message" [ngClass]="getMessageClass(msg)">
+              <span class="sender-info">
+                <span class="sender-name">{{ getMessageSenderName(msg) }}</span>
+              </span>:
+              <span class="text">{{ msg.message }}</span>
+            </div>
           }
         </div>
       </div>
 
       <!-- Formulaire d'envoi de message -->
       <div class="message-form">
-        @if (selectedTargetUser) {
-          <div class="target-user-info">
-            Message privé à: {{ selectedTargetUser.emote }} {{ getUserDisplayName(selectedTargetUser) }}
-            <button class="btn btn-sm" (click)="selectTargetUser(null)">❌</button>
-          </div>
-        }
         <div class="input-row">
           <input
             class="form-input"
             [(ngModel)]="currentMessage"
             name="message"
-            [placeholder]="selectedTargetUser ? 'Message privé...' : 'Message public...'"
+            placeholder="Tapez votre message..."
             required
             (keyup.enter)="sendMessage()">
           <button
             class="btn btn-success"
             (click)="sendMessage()"
             [disabled]="!currentMessage.trim()">
-            {{ selectedTargetUser ? 'Privé' : 'Public' }}
+            Envoyer
           </button>
           <button class="btn btn-danger" (click)="leaveChat()">
             Quitter
