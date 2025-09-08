@@ -15,7 +15,7 @@ const io = new Server(server, {
 const port = 3000;
 let users = [];
 
-console.log('🚀 Serveur Socket.IO moderne démarré...');
+console.log('🚀 Serveur Socket.IO démarré...');
 
 io.on('connection', (socket) => {
   console.log('👤 Utilisateur connecté - ID:', socket.id);
@@ -114,6 +114,5 @@ io.on('connection', (socket) => {
 server.listen(port, () => {
   console.log('🎯 Serveur écoute sur le port:', port);
   console.log('🌐 Application Angular sur: http://localhost:4200');
-  console.log('📡 CORS configuré pour localhost:4200');
-  console.log('✨ Socket.IO version moderne activée');
+  console.log('✨ Socket.IO activée');
 });
