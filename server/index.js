@@ -1,6 +1,9 @@
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
+const DataService = require('./services/DataService');
+const User = require('./models/User');
+const Message = require('./models/Message');
 
 const app = express();
 const server = http.createServer(app);
@@ -13,81 +16,167 @@ const io = new Server(server, {
 });
 
 const port = 3000;
-let users = [];
+const dataService = new DataService();
 
 console.log('🚀 Serveur Socket.IO démarré...');
 
 io.on('connection', (socket) => {
   console.log('👤 Utilisateur connecté - ID:', socket.id);
 
-  // Envoyer la liste des utilisateurs à la connexion
-  socket.emit('allUsers', users);
+  // Envoyer la liste des utilisateurs connectés à la connexion
+  const connectedUsers = dataService.getConnectedUsers();
+  socket.emit('allUsers', connectedUsers.map(user => user.toJSON()));
 
   // Gérer l'arrivée d'un nouvel utilisateur
-  socket.on('newUser', (pseudo) => {
-    console.log('🆕 Tentative de connexion avec le pseudo:', pseudo);
+  socket.on('newUser', (emote) => {
+    console.log('🆕 Tentative de connexion avec l\'emote:', emote);
 
-    // Vérifier si le pseudo existe déjà
-    if (users.includes(pseudo)) {
-      pseudo = pseudo + Math.floor(Math.random() * 100) + 1;
-      console.log('📝 Pseudo modifié (déjà existant):', pseudo);
+    try {
+      // Créer un nouvel utilisateur
+      const user = dataService.createUser(emote);
+
+      // Connecter l'utilisateur
+      dataService.connectUser(socket.id, user.id);
+      socket.userId = user.id;
+
+      console.log('✅ Utilisateur', user.getDisplayName(), 'créé avec ID:', user.id);
+
+      // Confirmer la connexion à l'utilisateur avec son ID
+      socket.emit('resUser', { success: true, userId: user.id });
+
+      // Créer et broadcaster le message de connexion
+      const joinMessage = Message.createJoinMessage(user);
+      dataService.addMessage(joinMessage);
+      io.emit('newUser', joinMessage.toJSON());
+
+      // Mettre à jour la liste des utilisateurs connectés pour tout le monde
+      const updatedUsers = dataService.getConnectedUsers();
+      io.emit('allUsers', updatedUsers.map(u => u.toJSON()));
+
+      console.log('📋 Utilisateurs connectés:', updatedUsers.length);
+    } catch (error) {
+      console.error('❌ Erreur lors de la création d\'utilisateur:', error);
+      socket.emit('resUser', { success: false });
     }
-
-    // Stocker le pseudo dans la session du socket
-    socket.pseudo = pseudo;
-    users.push(pseudo);
-
-    console.log('✅ Utilisateur', pseudo, 'ajouté. Total:', users.length);
-    console.log('📋 Liste actuelle:', users);
-
-    // Confirmer la connexion à l'utilisateur
-    socket.emit('resUser', true);
-
-    // Notifier tous les clients du nouvel utilisateur
-    io.emit('newUser', {
-      pseudo: pseudo,
-      message: pseudo + ' a rejoint le chat',
-      status: 1
-    });
-
-    // Mettre à jour la liste pour tout le monde
-    io.emit('allUsers', users);
   });
 
   // Gérer les messages
-  socket.on('message', (message) => {
-    console.log('💬 Message de', socket.pseudo || 'Anonyme', ':', message);
+  socket.on('message', (messageData) => {
+    console.log('💬 Message reçu:', messageData);
 
-    if ( !message ) { message = 'Kenavo!'; }
+    if (!socket.userId) {
+      console.log('⚠️ Tentative d\'envoi de message sans utilisateur connecté');
+      return;
+    }
 
-    if (socket.pseudo) {
-      io.emit('message', {
-        pseudo: socket.pseudo,
-        message: message,
-        status: 0
-      });
-    } else {
-      console.log('⚠️ Tentative d\'envoi de message sans pseudo');
+    const user = dataService.getUserById(socket.userId);
+    if (!user) {
+      console.log('⚠️ Utilisateur introuvable');
+      return;
+    }
+
+    try {
+      let messageContent, isPrivate = false, targetUserId = null;
+
+      if (typeof messageData === 'string') {
+        messageContent = messageData || 'Kenavo!';
+      } else {
+        messageContent = messageData.message || 'Kenavo!';
+        isPrivate = messageData.isPrivate || false;
+        targetUserId = messageData.targetUserId || null;
+      }
+
+      // Créer le message
+      const message = new Message(
+        user.id,
+        user.emote,
+        user.getDisplayName(),
+        messageContent,
+        0,
+        isPrivate,
+        targetUserId
+      );
+
+      // Sauvegarder le message
+      dataService.addMessage(message);
+
+      console.log('💬 Message de', user.getDisplayName(), ':', messageContent, isPrivate ? '(privé)' : '(public)');
+
+      // Envoyer le message
+      if (isPrivate && targetUserId) {
+        // Message privé : envoyer seulement à l'expéditeur et au destinataire
+        const targetUser = dataService.getUserById(targetUserId);
+        if (targetUser && targetUser.socketId) {
+          io.to(targetUser.socketId).emit('message', message.toJSON());
+        }
+        socket.emit('message', message.toJSON()); // Confirmer à l'expéditeur
+      } else {
+        // Message public : envoyer à tous
+        io.emit('message', message.toJSON());
+      }
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'envoi du message:', error);
+    }
+  });
+
+  // Gérer l'assignment de pseudo
+  socket.on('assignPseudo', ({ userId, pseudo }) => {
+    console.log('✏️ Assignment de pseudo:', { userId, pseudo });
+
+    if (!socket.userId) {
+      console.log('⚠️ Tentative d\'assignment sans utilisateur connecté');
+      return;
+    }
+
+    const assignedUser = dataService.assignPseudo(userId, pseudo, socket.userId);
+    if (assignedUser) {
+      // Notifier tous les clients de la mise à jour
+      io.emit('userUpdated', assignedUser.toJSON());
+      console.log('✅ Pseudo assigné:', pseudo, 'à', assignedUser.emote);
+    }
+  });
+
+  // Gérer l'ajout de notes
+  socket.on('addUserNote', ({ userId, noteContent }) => {
+    console.log('📝 Ajout de note:', { userId, noteContent });
+
+    if (!socket.userId) {
+      console.log('⚠️ Tentative d\'ajout de note sans utilisateur connecté');
+      return;
+    }
+
+    const note = dataService.addUserNote(userId, noteContent, socket.userId);
+    if (note) {
+      const user = dataService.getUserById(userId);
+      // Notifier tous les clients de la mise à jour
+      io.emit('userUpdated', user.toJSON());
+      console.log('✅ Note ajoutée à', user.getDisplayName());
     }
   });
 
   // Gérer la déconnexion volontaire
-  socket.on('logout', (message) => {
-    console.log('👋 Déconnexion volontaire de', socket.pseudo);
+  socket.on('logout', (customMessage) => {
+    if (!socket.userId) return;
 
-    if (socket.pseudo && users.includes(socket.pseudo)) {
-      users.splice(users.indexOf(socket.pseudo), 1);
+    const user = dataService.getUserById(socket.userId);
+    if (user) {
+      console.log('👋 Déconnexion volontaire de', user.getDisplayName());
 
-      const logoutMessage = message || socket.pseudo + ' a quitté le chat';
+      // Créer le message de départ
+      const leaveMessage = Message.createLeaveMessage(user, customMessage);
+      dataService.addMessage(leaveMessage);
 
-      io.emit('logout', {
-        pseudo: socket.pseudo,
-        message: logoutMessage,
-        status: 2
-      });
+      // Déconnecter l'utilisateur
+      dataService.disconnectUser(socket.id);
 
-      io.emit('allUsers', users);
-      console.log('📋 Liste après départ:', users);
+      // Notifier tous les clients
+      io.emit('logout', leaveMessage.toJSON());
+
+      // Mettre à jour la liste des utilisateurs connectés
+      const connectedUsers = dataService.getConnectedUsers();
+      io.emit('allUsers', connectedUsers.map(u => u.toJSON()));
+
+      console.log('📋 Utilisateurs connectés après départ:', connectedUsers.length);
     }
   });
 
@@ -95,18 +184,25 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('❌ Déconnexion forcée - ID:', socket.id);
 
-    if (socket.pseudo && users.includes(socket.pseudo)) {
-      users.splice(users.indexOf(socket.pseudo), 1);
-      console.log('🧹 Nettoyage:', socket.pseudo, 'retiré de la liste');
+    const userId = dataService.disconnectUser(socket.id);
+    if (userId) {
+      const user = dataService.getUserById(userId);
+      if (user) {
+        console.log('🧹 Nettoyage:', user.getDisplayName(), 'déconnecté');
 
-      io.emit('logout', {
-        pseudo: socket.pseudo,
-        message: socket.pseudo + ' a quitté le chat',
-        status: 2
-      });
+        // Créer le message de départ
+        const leaveMessage = Message.createLeaveMessage(user);
+        dataService.addMessage(leaveMessage);
 
-      io.emit('allUsers', users);
-      console.log('📋 Liste après nettoyage:', users);
+        // Notifier tous les clients
+        io.emit('logout', leaveMessage.toJSON());
+
+        // Mettre à jour la liste des utilisateurs connectés
+        const connectedUsers = dataService.getConnectedUsers();
+        io.emit('allUsers', connectedUsers.map(u => u.toJSON()));
+
+        console.log('📋 Utilisateurs connectés après nettoyage:', connectedUsers.length);
+      }
     }
   });
 });
