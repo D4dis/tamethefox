@@ -1,0 +1,34 @@
+<div class="user-container">
+  <h2 *ngIf="currentUser">Tame The Fox - {{ currentUser.pseudo }} {{ currentUser.emoji }}</h2>
+  <button (click)="viewMyProfile()" *ngIf="currentUser">Voir mon profil</button>
+  <div class="user-list">
+    <h3>Connectés</h3>
+    <div *ngIf="users.length === 0">
+      Aucun autre utilisateur connecté. Ouvrez un autre onglet pour tester.
+    </div>
+    <div
+      *ngFor="let user of users"
+      (click)="selectUser(user)"
+      class="user-item"
+      [class.selected]="user === selectedUser"
+    >
+      {{ user.pseudo }} {{ user.emoji }}
+      <button (click)="tameUser(user)" *ngIf="selectedUser?.id === user.id">Apprivoiser</button>
+    </div>
+  </div>
+  <div class="profile-section" *ngIf="selectedUser">
+    <h4>Profil de {{ selectedUser.pseudo }} {{ selectedUser.emoji }}</h4>
+    <div *ngIf="selectedUser && selectedUser.profile && selectedUser.profile.qualities.length > 0">
+      <strong>Qualités :</strong> {{ selectedUser.profile.qualities.join(', ') }}
+    </div>
+    <div *ngIf="selectedUser && selectedUser.profile && selectedUser.profile.feelings.length > 0">
+      <strong>Humeur :</strong> {{ selectedUser.profile.feelings.join(', ') }}
+    </div>
+    <select [(ngModel)]="noteType">
+      <option value="qualities">Qualités</option>
+      <option value="feelings">Humeur</option>
+    </select>
+    <input [(ngModel)]="noteInput" placeholder="Ajouter une note au profil..." />
+    <button (click)="addProfileNote()">Ajouter</button>
+  </div>
+</div>

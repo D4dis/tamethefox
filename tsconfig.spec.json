@@ -1,14 +1,12 @@
-/* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
-/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/spec",
-    "types": [
-      "jasmine"
-    ]
+    "types": [],
+    "typeRoots": ["./node_modules/@types"],
+    "esModuleInterop": true,
+    "module": "CommonJS",
+    "target": "ES2022"
   },
-  "include": [
-    "src/**/*.ts"
-  ]
+  "include": ["src/**/*.spec.ts", "src/**/*.d.ts"]
 }

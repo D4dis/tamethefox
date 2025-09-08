@@ -1,0 +1,41 @@
+.user-container {
+  max-width: 400px;
+  margin: 20px;
+  padding: 10px;
+  background: #fff;
+  border-radius: 5px;
+}
+
+.user-list {
+  margin-top: 10px;
+}
+
+.user-item {
+  padding: 5px;
+  cursor: pointer;
+}
+
+.user-item:hover {
+  background: #e0e0e0;
+}
+
+.user-item.selected {
+  background: #d0e8ff;
+}
+
+.profile-section {
+  margin-top: 20px;
+}
+
+select,
+input {
+  padding: 5px;
+  margin: 5px;
+  width: 100%;
+}
+
+button {
+  padding: 5px 10px;
+  margin: 5px;
+  cursor: pointer;
+}
