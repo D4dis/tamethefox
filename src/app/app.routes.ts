@@ -1,10 +1,16 @@
 import { Routes } from '@angular/router';
-import { Register } from './register/register';
+import { Register } from './components/register/register';
+import { Chat } from './components/chat/chat';
 
 export const routes: Routes = [
   {
     path: '',
     component: Register,
+    title: 'Tam The Fox'
+  },
+  {
+    path: 'chat',
+    component: Chat,
     title: 'Tam The Fox'
   }
 ];

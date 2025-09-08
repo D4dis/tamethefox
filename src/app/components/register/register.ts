@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { ChatService } from '../services/chat.service';
+import { ChatService } from '../../services/chat.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -18,9 +18,9 @@ export class Register {
     return `${emoji} ${randomNumber}`;
   }
 
-  onSubmit(form: NgForm): void {
-    const emoji = form.value.emoji;
+  chooseEmoji(emoji: string): void {
     const username = this.generateRandomUsername(emoji);
+    console.log(username);
     this.chatService.login(username);
     this.router.navigate(['/chat'], { state: { username } });
   }
