@@ -1,86 +1,91 @@
-<!-- chat-component.html -->
-<div class="chat-container">
+<div class="min-h-screen bg-gray-900 text-slate-300 p-4">
   <!-- État de connexion -->
-  <div class="connection-status" [ngClass]="socketConnected ? 'connected' : 'disconnected'">
-    <span class="status-icon">{{ socketConnected ? '🟢' : '🔴' }}</span>
+  <div class="mb-4 p-3 rounded-lg border"
+    [ngClass]="socketConnected ? 'bg-emerald-900/20 border-emerald-500/30 text-emerald-400' : 'bg-red-900/20 border-red-500/30 text-red-400'">
+    <span class="mr-2">{{ socketConnected ? '🟢' : '🔴' }}</span>
     Socket.IO: {{ socketConnected ? 'Connecté' : 'Déconnecté' }}
   </div>
 
   <!-- Message si aucun utilisateur sélectionné -->
-  <div class="no-user-selected" *ngIf="!selectedUserId && isConnected">
-    <div class="empty-state">
-      <span class="empty-icon">💬</span>
-      <h3>Aucune conversation sélectionnée</h3>
-      <p>Sélectionnez un utilisateur dans la liste pour commencer à discuter</p>
+  @if (!selectedUserId && isConnected) {
+  <div class="flex items-center justify-center min-h-[60vh]">
+    <div class="text-center space-y-4">
+      <span class="text-6xl">💬</span>
+      <h3 class="text-xl font-semibold text-slate-200">Aucune conversation sélectionnée</h3>
+      <p class="text-slate-400">Sélectionnez un utilisateur dans la liste pour commencer à discuter</p>
     </div>
   </div>
+  }
 
   <!-- Interface de chat privé -->
-  <div class="chat-interface" *ngIf="selectedUserId && isConnected">
+  @if(selectedUserId && isConnected) {
+  <div class="flex flex-col h-[calc(100vh-8rem)] bg-gray-800/50 rounded-lg border border-gray-700">
     <!-- En-tête de la conversation -->
-    <div class="chat-header">
-      <div class="chat-user-info">
-        <span class="user-emoji">{{ selectedUserEmoji }}</span>
-        <span class="user-name">{{ selectedUserName }}</span>
+    <div
+      class="flex items-center justify-between p-4 border-b border-gray-700 bg-gradient-to-r from-emerald-500/10 via-cyan-500/10 to-purple-600/10">
+      <div class="flex items-center space-x-3">
+        <span class="text-2xl">{{ selectedUserEmoji }}</span>
+        <span class="font-semibold text-slate-200">{{ selectedUserName }}</span>
       </div>
-      <span class="chat-type">Conversation privée</span>
+      <span class="text-sm text-slate-400 bg-gray-700/50 px-3 py-1 rounded-full">Conversation privée</span>
     </div>
 
     <!-- Zone des messages -->
-    <div class="messages-area">
-      <div class="messages-container" #messagesContainer>
+    <div class="flex-1 overflow-hidden">
+      <div class="h-full overflow-y-auto p-4 space-y-4" #messagesContainer>
         <!-- Message si pas de messages -->
-        <div class="no-messages" *ngIf="filteredMessages.length === 0">
+        @if(filteredMessages.length === 0) {
+        <div class="text-center text-slate-400 py-8">
           <p>Commencez la conversation avec {{ selectedUserName }} {{ selectedUserEmoji }}</p>
         </div>
+        }
 
         <!-- Liste des messages -->
-        <div *ngFor="let msg of filteredMessages; trackBy: trackByMessageId"
-             class="message-wrapper"
-             [ngClass]="getMessageClass(msg)">
-
-          <div class="message-bubble">
-            <div class="message-header">
-              <span class="sender-emoji">{{ msg.senderEmote }}</span>
-              <span class="sender-name">{{ getMessageSenderName(msg) }}</span>
-              <span class="message-time">{{ formatTimestamp(msg.timestamp) }}</span>
+        @for(msg of filteredMessages; track msg.id || $index) {
+        <div class="flex" [ngClass]="getMessageClass(msg)">
+          <div class="max-w-xs lg:max-w-md px-4 py-2 rounded-lg"
+            [ngClass]="msg.senderId === currentUserId ? 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white ml-auto' : 'bg-gray-700 text-slate-200'">
+            <div class="flex items-center space-x-2 mb-1">
+              <span class="text-sm">{{ msg.senderEmote }}</span>
+              <span class="text-xs font-medium">{{ getMessageSenderName(msg) }}</span>
+              <span class="text-xs opacity-70">{{ formatTimestamp(msg.timestamp) }}</span>
             </div>
-            <div class="message-text">
+            <div class="text-sm">
               {{ msg.message }}
             </div>
           </div>
         </div>
+        }
       </div>
     </div>
 
     <!-- Formulaire d'envoi de message -->
-    <div class="message-form">
-      <div class="input-group">
+    <div class="p-4 border-t border-gray-700">
+      <div class="flex space-x-3">
         <input
-          class="message-input"
-          [(ngModel)]="currentMessage"
-          name="message"
-          placeholder="Écrivez votre message..."
-          (keyup.enter)="sendMessage()"
-          [disabled]="!socketConnected">
+          class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+          [(ngModel)]="currentMessage" name="message" placeholder="Écrivez votre message..."
+          (keyup.enter)="sendMessage()" [disabled]="!socketConnected">
 
         <button
-          class="btn-send"
-          (click)="sendMessage()"
-          [disabled]="!currentMessage.trim() || !socketConnected">
-          <span class="send-icon">➤</span>
-          Envoyer
+          class="bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white px-6 py-2 rounded-lg font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+          (click)="sendMessage()" [disabled]="!currentMessage.trim() || !socketConnected">
+          <span>➤</span>
+          <span>Envoyer</span>
         </button>
       </div>
     </div>
   </div>
+  }
 
   <!-- Message si pas connecté -->
-  <div class="waiting-connection" *ngIf="!isConnected">
-    <div class="loading-state">
-      <div class="spinner"></div>
-      <h3>Connexion en cours...</h3>
-      <p>Veuillez patienter</p>
+  @if(!isConnected) {
+  <div class="flex items-center justify-center min-h-[60vh]">
+    <div class="text-center space-y-4">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto"></div>
+      <h3 class="text-xl font-semibold text-slate-200">Connexion en cours...</h3>
+      <p class="text-slate-400">Veuillez patienter</p>
     </div>
   </div>
+  }
 </div>

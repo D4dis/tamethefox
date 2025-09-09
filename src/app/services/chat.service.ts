@@ -7,17 +7,25 @@ import { Observable } from 'rxjs';
 })
 export class ChatService {
   private socketService = inject(SocketService);
+  private username: string | null = null;
 
   constructor() { }
 
   // Connexion avec emoji
   login(emojiWithNumber: string): void {
+    this.username = emojiWithNumber;
     this.socketService.emit('newUser', emojiWithNumber);
   }
 
   // Déconnexion
   logout(): void {
+    this.username = null;
     this.socketService.emit('logout');
+  }
+
+  // Verifier si l'utilisateur est connecté
+  isLoggedIn(): boolean {
+    return this.username !== null;
   }
 
   // Envoyer un message privé

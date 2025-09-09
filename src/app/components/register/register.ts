@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { ChatService } from '../services/chat.service';
+import { ChatService } from '../../services/chat.service';
 import { Router } from '@angular/router';
 
 @Component({
