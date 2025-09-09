@@ -7,15 +7,26 @@ import { Observable } from 'rxjs';
 })
 export class ChatService {
   private socketService = inject(SocketService);
+  private username: string | null = null;
 
   constructor() { }
 
   login(pseudo: string): void {
+    this.username = pseudo;
     this.socketService.sendNewUser(pseudo);
   }
 
   logout(): void {
+    this.username = null;
     this.socketService.getSocket().emit('Logout');
+  }
+
+  isLoggedIn(): boolean {
+    return this.username !== null;
+  }
+
+  getUsername(): string | null {
+    return this.username;
   }
 
   sendMessage(message: string): void {
