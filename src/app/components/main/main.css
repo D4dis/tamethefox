@@ -1,0 +1,25 @@
+.main-container {
+  display: flex;
+  height: 100vh;
+}
+
+.user-section {
+  width: 300px;
+  border-right: 1px solid #ddd;
+  overflow-y: auto;
+}
+
+.chat-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.no-user-selected {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: #666;
+  font-size: 18px;
+}

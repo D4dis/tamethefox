@@ -10,39 +10,38 @@ export class ChatService {
 
   constructor() { }
 
-  login(pseudo: string): void {
-    this.socketService.sendNewUser(pseudo);
+  // Connexion avec emoji
+  login(emojiWithNumber: string): void {
+    this.socketService.emit('newUser', emojiWithNumber);
   }
 
+  // Déconnexion
   logout(): void {
-    this.socketService.getSocket().emit('Logout');
+    this.socketService.emit('logout');
   }
 
-  sendMessage(message: string): void {
-    this.socketService.sendMessage(message);
+  // Envoyer un message privé
+  sendPrivateMessage(data: { recipientId: string; message: string }): void {
+    this.socketService.emit('message', data);
   }
 
-  onMessage(): Observable<any> {
-    return new Observable(observer => {
-      this.socketService.onMessage((msg) => observer.next(msg));
-    });
+  // Observer les messages privés
+  onPrivateMessage(): Observable<any> {
+    return this.socketService.on('private-message');
   }
 
+  // Observer les nouveaux utilisateurs
   onNewUser(): Observable<any> {
-    return new Observable(observer => {
-      this.socketService.onNewUser((user) => observer.next(user));
-    });
+    return this.socketService.on('newUser');
   }
 
+  // Observer les déconnexions
   onLogout(): Observable<any> {
-    return new Observable(observer => {
-      this.socketService.getSocket().on('logout', (user) => observer.next(user));
-    });
+    return this.socketService.on('logout');
   }
 
+  // Observer la liste des utilisateurs
   onAllUsers(): Observable<any> {
-    return new Observable(observer => {
-      this.socketService.onAllUsers((users) => observer.next(users));
-    })
+    return this.socketService.on('allUsers');
   }
 }

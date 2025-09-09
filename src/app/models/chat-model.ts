@@ -1,11 +1,16 @@
+export enum MessageType {
+  NORMAL = 0,
+  USER_JOIN = 1,
+  USER_LEAVE = 2
+}
+
 export interface ChatMessage {
   id: string;
   senderId: string;
   senderEmote: string;
-  senderDisplayName: string; // emote ou pseudo assigné
+  senderDisplayName: string;
+  recipientId?: string;  // Ajout pour les messages privés
   message: string;
-  status: number; // 0: message normal, 1: nouvel utilisateur, 2: déconnexion
-  timestamp: Date;
-  type?: string; // 'join', 'leave', ou undefined pour message normal
-  pseudo?: string;
+  type: MessageType;
+  timestamp: Date | string;
 }

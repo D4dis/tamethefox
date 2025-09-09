@@ -1,0 +1,254 @@
+.user-container {
+  max-width: 400px;
+  margin: 20px;
+  padding: 10px;
+  background: #fff;
+  border-radius: 5px;
+}
+
+.user-list {
+  margin-top: 10px;
+}
+
+.user-item {
+  padding: 8px;
+  margin: 4px 0;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.user-item:hover {
+  background: #e0e0e0;
+  transform: translateX(2px);
+}
+
+.user-item.selected {
+  background: #d0e8ff;
+  border-left: 3px solid #2563eb;
+}
+
+.user-item.tamed {
+  background: linear-gradient(to right, #fef3c7, transparent);
+  font-weight: 600;
+}
+
+.user-item.has-unread {
+  animation: pulse 2s infinite;
+  border: 2px solid #ef4444;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 5px rgba(239, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+.unread-indicator {
+  color: #ef4444;
+  font-size: 0.8em;
+  font-weight: bold;
+  margin-left: 8px;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50%, 100% {
+    opacity: 1;
+  }
+  25%, 75% {
+    opacity: 0.3;
+  }
+}
+
+.tamed-indicator {
+  color: #f59e0b;
+  margin-left: 4px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-emoji {
+  font-size: 1.2em;
+}
+
+.user-name {
+  flex: 1;
+}
+
+.profile-section {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f9fafb;
+  border-radius: 8px;
+}
+
+.profile-content {
+  margin: 15px 0;
+}
+
+.profile-item {
+  margin: 10px 0;
+}
+
+.profile-item ul {
+  margin: 5px 0 0 20px;
+  padding: 0;
+}
+
+.profile-item li {
+  list-style-type: disc;
+  padding: 2px 0;
+}
+
+.add-note-form {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.note-type-select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+}
+
+.note-input-group {
+  display: flex;
+  gap: 8px;
+}
+
+.note-input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+}
+
+button {
+  padding: 8px 16px;
+  margin: 5px;
+  cursor: pointer;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: white;
+  transition: all 0.2s;
+}
+
+button:hover:not(:disabled) {
+  background: #f3f4f6;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-tame {
+  background: #10b981;
+  color: white;
+  border: none;
+  font-size: 0.85em;
+  padding: 4px 12px;
+}
+
+.btn-tame:hover {
+  background: #059669;
+}
+
+.btn-mood {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+}
+
+.btn-profile {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  border: none;
+}
+
+.btn-add {
+  background: #3b82f6;
+  color: white;
+  border: none;
+}
+
+.mood-stats {
+  display: flex;
+  justify-content: space-around;
+  padding: 10px;
+  background: #f9fafb;
+  border-radius: 8px;
+  margin: 10px 0;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.stat-emoji {
+  font-size: 1.2em;
+}
+
+.stat-count {
+  font-weight: bold;
+  color: #374151;
+}
+
+.user-header {
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 15px;
+  margin-bottom: 15px;
+}
+
+.app-title {
+  color: #2563eb;
+  margin: 0 0 10px 0;
+  font-size: 1.5em;
+}
+
+.current-user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.1em;
+  font-weight: 600;
+  margin: 10px 0;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.users-section h3 {
+  color: #374151;
+  margin: 15px 0 10px 0;
+}
+
+.no-users {
+  text-align: center;
+  color: #6b7280;
+  padding: 20px;
+  font-style: italic;
+}

@@ -1,0 +1,140 @@
+<!-- user.html -->
+<div class="user-container">
+  <!-- En-tête avec info utilisateur -->
+  <div class="user-header" *ngIf="currentUser">
+    <h2 class="app-title">Tame The Fox</h2>
+    <div class="current-user-info">
+      <span class="user-emoji">{{ currentUser.emoji }}</span>
+      <span class="user-pseudo">{{ currentUser.pseudo }}</span>
+    </div>
+
+    <div class="action-buttons">
+      <button class="btn btn-mood" (click)="changeMood()">
+        🎭 Changer d'humeur
+      </button>
+      <button class="btn btn-profile" (click)="viewMyProfile()">
+        👁️ Voir mon profil
+      </button>
+    </div>
+  </div>
+
+  <!-- Statistiques d'humeur -->
+  <div class="mood-stats">
+    <div class="stat-item">
+      <span class="stat-emoji">☀️</span>
+      <span class="stat-count">{{ moodStats.sunny }}</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-emoji">☁️</span>
+      <span class="stat-count">{{ moodStats.cloudy }}</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-emoji">❓</span>
+      <span class="stat-count">{{ moodStats.question }}</span>
+    </div>
+  </div>
+
+  <!-- Liste des utilisateurs -->
+  <div class="users-section">
+    <h3>Utilisateurs connectés ({{ users.length }})</h3>
+
+    <div class="users-list" *ngIf="users.length > 0">
+      <div *ngFor="let user of users"
+           [ngClass]="getUserClass(user)"
+           (click)="selectUser(user)">
+
+        <div class="user-info">
+          <span class="user-emoji">{{ user.emoji }}</span>
+          <span class="user-name">
+            {{ getUserDisplayName(user) }}
+            <span class="tamed-indicator" *ngIf="tamedUsers.has(user.id)">
+              🦊
+            </span>
+            <span class="unread-indicator" *ngIf="hasUnreadMessages(user.id)">
+              🔴 Nouveau message!
+            </span>
+          </span>
+        </div>
+
+        <button class="btn-tame"
+                *ngIf="selectedUser?.id === user.id"
+                (click)="tameUser(user); $event.stopPropagation()">
+          Apprivoiser
+        </button>
+      </div>
+    </div>
+
+    <div class="no-users" *ngIf="users.length === 0">
+      Aucun autre utilisateur connecté.
+      <br>Ouvrez un autre onglet pour tester !
+    </div>
+  </div>
+
+  <!-- Section profil de l'utilisateur sélectionné -->
+  <div class="profile-section" *ngIf="selectedUser">
+    <h4>
+      Profil de {{ getUserDisplayName(selectedUser) }} {{ selectedUser.emoji }}
+    </h4>
+
+    <!-- Affichage du profil existant -->
+    <div class="profile-content" *ngIf="selectedUser.profile">
+      <div class="profile-item" *ngIf="selectedUser.profile?.qualities && selectedUser.profile.qualities.length > 0">
+        <strong>💎 Qualités:</strong>
+        <ul>
+          <li *ngFor="let quality of selectedUser.profile.qualities">
+            {{ quality }}
+          </li>
+        </ul>
+      </div>
+
+      <div class="profile-item" *ngIf="selectedUser.profile?.feelings && selectedUser.profile.feelings.length > 0">
+        <strong>❤️ Ressenti:</strong>
+        <ul>
+          <li *ngFor="let feeling of selectedUser.profile.feelings">
+            {{ feeling }}
+          </li>
+        </ul>
+      </div>
+
+      <div class="profile-item" *ngIf="selectedUserSearches.length > 0">
+        <strong>🔍 Recherche:</strong>
+        <ul>
+          <li *ngFor="let search of selectedUserSearches">
+            {{ search }}
+          </li>
+        </ul>
+      </div>
+
+      <div class="profile-item" *ngIf="selectedUserShouldKnow.length > 0">
+        <strong>💡 À savoir:</strong>
+        <ul>
+          <li *ngFor="let info of selectedUserShouldKnow">
+            {{ info }}
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Formulaire pour ajouter au profil -->
+    <div class="add-note-form">
+      <select [(ngModel)]="noteType" class="note-type-select">
+        <option value="qualities">💎 Qualités</option>
+        <option value="feelings">❤️ Ressenti</option>
+        <option value="searches">🔍 Ce qu'il/elle recherche</option>
+        <option value="shouldKnow">💡 Ce qu'il/elle devrait savoir</option>
+      </select>
+
+      <div class="note-input-group">
+        <input [(ngModel)]="noteInput"
+               placeholder="Ajouter une note au profil..."
+               class="note-input"
+               (keyup.enter)="addProfileNote()" />
+        <button (click)="addProfileNote()"
+                class="btn btn-add"
+                [disabled]="!noteInput.trim()">
+          Ajouter
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -22,6 +22,6 @@ export class Register {
     const username = this.generateRandomUsername(emoji);
     console.log(username);
     this.chatService.login(username);
-    this.router.navigate(['/chat'], { state: { username } });
+    this.router.navigate(['/main'], { state: { username } });
   }
 }
