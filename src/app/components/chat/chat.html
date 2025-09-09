@@ -1,1 +1,57 @@
-<p>chat works!</p>
+<div class="chat-container">
+  <h2>Socket.IO</h2>
+
+  <!-- état de connexion -->
+  <div class="connection-status" [ngClass]="socketConnected ? 'connected' : 'disconnected'">
+    Socket.IO: {{ socketConnected ? 'Connecté' : 'Déconnecté' }}
+  </div>
+
+  <!-- Message d'attente du login -->
+  @if (!isConnected) {
+    <div class="waiting-login">
+      <h3>En attente de connexion...</h3>
+    </div>
+  }
+
+  <!-- Interface de chat -->
+  @if (isConnected) {
+    <div class="chat-interface">
+      <!-- Zone des messages -->
+      <div class="messages-area">
+        <h4>Messages</h4>
+        <div class="messages-container">
+          @for (msg of messages; track msg.id || $index) {
+            <div class="message" [ngClass]="getMessageClass(msg)">
+              <span class="sender-info">
+                <span class="sender-name">{{ getMessageSenderName(msg) }}</span>
+              </span>:
+              <span class="text">{{ msg.message }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Formulaire d'envoi de message -->
+      <div class="message-form">
+        <div class="input-row">
+          <input
+            class="form-input"
+            [(ngModel)]="currentMessage"
+            name="message"
+            placeholder="Tapez votre message..."
+            required
+            (keyup.enter)="sendMessage()">
+          <button
+            class="btn btn-success"
+            (click)="sendMessage()"
+            [disabled]="!currentMessage.trim()">
+            Envoyer
+          </button>
+          <button class="btn btn-danger" (click)="leaveChat()">
+            Quitter
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>
