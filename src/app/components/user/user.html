@@ -1,19 +1,26 @@
-<!-- user.html -->
-<div class="user-container">
+<div class="min-h-screen bg-gray-900 text-slate-300 p-6">
   <!-- En-tête avec info utilisateur -->
   @if(currentUser) {
-  <div class="user-header">
-    <h2 class="app-title">Tame The Fox</h2>
-    <div class="current-user-info">
-      <span class="user-emoji">{{ currentUser.emoji }}</span>
-      <span class="user-pseudo">{{ currentUser.pseudo }}</span>
+  <div class="bg-gray-800 rounded-lg p-6 mb-6 border border-gray-700">
+    <!-- Reduced title size from text-3xl to text-2xl to prevent truncation -->
+    <h2 class="text-2xl font-bold bg-gradient-to-r from-emerald-400 via-cyan-500 to-purple-600 bg-clip-text text-transparent mb-4 whitespace-nowrap">Tame The Fox</h2>
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center space-x-3">
+        <span class="text-2xl">{{ currentUser.emoji }}</span>
+        <span class="text-xl font-semibold text-slate-200">{{ currentUser.pseudo }}</span>
+      </div>
     </div>
 
-    <div class="action-buttons">
-      <button class="btn btn-mood" (click)="changeMood()">
+    <!-- Changed from flex-wrap to flex-col and added w-full for uniform button sizing -->
+    <div class="flex flex-col gap-3">
+      <button
+        class="w-full bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
+        (click)="changeMood()">
         🎭 Changer d'humeur
       </button>
-      <button class="btn btn-profile" (click)="viewMyProfile()">
+      <button
+        class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
+        (click)="viewMyProfile()">
         👁️ Voir mon profil
       </button>
     </div>
@@ -21,41 +28,46 @@
   }
 
   <!-- Statistiques d'humeur -->
-  <div class="mood-stats">
-    <div class="stat-item">
-      <span class="stat-emoji">☀️</span>
-      <span class="stat-count">{{ moodStats.sunny }}</span>
-    </div>
-    <div class="stat-item">
-      <span class="stat-emoji">☁️</span>
-      <span class="stat-count">{{ moodStats.cloudy }}</span>
-    </div>
-    <div class="stat-item">
-      <span class="stat-emoji">❓</span>
-      <span class="stat-count">{{ moodStats.question }}</span>
+  <div class="bg-gray-800 rounded-lg p-6 mb-6 border border-gray-700">
+    <div class="flex justify-center space-x-8">
+      <div class="text-center">
+        <span class="text-3xl block mb-2">☀️</span>
+        <span class="text-2xl font-bold text-yellow-400">{{ moodStats.sunny }}</span>
+      </div>
+      <div class="text-center">
+        <span class="text-3xl block mb-2">☁️</span>
+        <span class="text-2xl font-bold text-gray-400">{{ moodStats.cloudy }}</span>
+      </div>
+      <div class="text-center">
+        <span class="text-3xl block mb-2">❓</span>
+        <span class="text-2xl font-bold text-blue-400">{{ moodStats.question }}</span>
+      </div>
     </div>
   </div>
 
   <!-- Liste des utilisateurs -->
-  <div class="users-section">
-    <h3>Utilisateurs connectés ({{ users.length }})</h3>
+  <div class="bg-gray-800 rounded-lg p-6 mb-6 border border-gray-700">
+    <h3 class="text-xl font-semibold text-slate-200 mb-4">Utilisateurs connectés ({{ users.length }})</h3>
 
     @if(users.length > 0) {
-    <div class="users-list">
+    <div class="space-y-3">
       @for(user of users; track user.id) {
-      <div [ngClass]="getUserClass(user)" (click)="selectUser(user)">
+      <div [ngClass]="getUserClass(user)"
+        class="bg-gray-700 hover:bg-gray-600 rounded-lg p-4 cursor-pointer border border-gray-600"
+        (click)="selectUser(user)">
 
-        <div class="user-info">
-          <span class="user-emoji">{{ user.emoji }}</span>
-          <span class="user-name">
+        <!-- Moved button below pseudo instead of beside it -->
+        <div class="flex items-center space-x-3">
+          <span class="text-2xl">{{ user.emoji }}</span>
+          <span class="font-medium text-slate-200">
             {{ getUserDisplayName(user) }}
             @if(tamedUsers.has(user.id)) {
-            <span class="tamed-indicator">
+            <span class="ml-2 text-orange-400">
               🦊
             </span>
             }
             @if(hasUnreadMessages(user.id)) {
-            <span class="unread-indicator">
+            <span class="ml-2 text-red-400 text-sm">
               🔴 Nouveau message!
             </span>
             }
@@ -63,9 +75,13 @@
         </div>
 
         @if(selectedUser?.id === user.id) {
-        <button class="btn-tame" (click)="tameUser(user); $event.stopPropagation()">
-          Apprivoiser
-        </button>
+        <div class="mt-3">
+          <button
+            class="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-medium px-6 py-2 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
+            (click)="tameUser(user); $event.stopPropagation()">
+            Apprivoiser
+          </button>
+        </div>
         }
       </div>
       }
@@ -73,7 +89,7 @@
     }
 
     @if(users.length === 0) {
-    <div class="no-users">
+    <div class="text-center text-slate-400 py-8">
       Aucun autre utilisateur connecté.
       <br>Ouvrez un autre onglet pour tester !
     </div>
@@ -82,21 +98,21 @@
 
   <!-- Section profil de l'utilisateur sélectionné -->
   @if(selectedUser) {
-  <div class="profile-section">
-    <h4>
+  <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+    <h4 class="text-xl font-semibold text-slate-200 mb-4">
       Profil de {{ getUserDisplayName(selectedUser) }} {{ selectedUser.emoji }}
     </h4>
 
     <!-- Affichage du profil existant -->
     @if(selectedUser.profile) {
-    <div class="profile-content">
+    <div class="space-y-4 mb-6">
       @if(selectedUser.profile.qualities && selectedUser.profile.qualities.length > 0) {
-      <div class="profile-item">
-        <strong>💎 Qualités:</strong>
-        <ul>
+      <div class="bg-gray-700 rounded-lg p-4">
+        <strong class="text-emerald-400 block mb-2">💎 Qualités:</strong>
+        <ul class="space-y-1 ml-4">
           @for(quality of selectedUser.profile.qualities; track quality) {
-          <li>
-            {{ quality }}
+          <li class="text-slate-300">
+            • {{ quality }}
           </li>
           }
         </ul>
@@ -104,12 +120,12 @@
       }
 
       @if(selectedUser.profile.feelings && selectedUser.profile.feelings.length > 0) {
-      <div class="profile-item">
-        <strong>❤️ Ressenti:</strong>
-        <ul>
+      <div class="bg-gray-700 rounded-lg p-4">
+        <strong class="text-pink-400 block mb-2">❤️ Ressenti:</strong>
+        <ul class="space-y-1 ml-4">
           @for(feeling of selectedUser.profile.feelings; track feeling) {
-          <li>
-            {{ feeling }}
+          <li class="text-slate-300">
+            • {{ feeling }}
           </li>
           }
         </ul>
@@ -117,22 +133,22 @@
       }
 
       @if(selectedUserSearches.length > 0) {
-      <div class="profile-item">
-        <strong>🔍 Recherche:</strong>
-        <ul>
-          <li *ngFor="let search of selectedUserSearches">
-            {{ search }}
+      <div class="bg-gray-700 rounded-lg p-4">
+        <strong class="text-blue-400 block mb-2">🔍 Recherche:</strong>
+        <ul class="space-y-1 ml-4">
+          <li *ngFor="let search of selectedUserSearches" class="text-slate-300">
+            • {{ search }}
           </li>
         </ul>
       </div>
       }
 
       @if(selectedUserShouldKnow.length > 0) {
-      <div class="profile-item">
-        <strong>💡 À savoir:</strong>
-        <ul>
-          <li *ngFor="let info of selectedUserShouldKnow">
-            {{ info }}
+      <div class="bg-gray-700 rounded-lg p-4">
+        <strong class="text-yellow-400 block mb-2">💡 À savoir:</strong>
+        <ul class="space-y-1 ml-4">
+          <li *ngFor="let info of selectedUserShouldKnow" class="text-slate-300">
+            • {{ info }}
           </li>
         </ul>
       </div>
@@ -140,19 +156,24 @@
     </div>
     }
 
-    <!-- Formulaire pour ajouter au profil -->
-    <div class="add-note-form">
-      <select [(ngModel)]="noteType" class="note-type-select">
+    <!-- Improved form layout with button below input for better space utilization -->
+    <div class="bg-gray-700 rounded-lg p-4">
+      <select [(ngModel)]="noteType"
+        class="w-full bg-gray-600 border border-gray-500 rounded-lg px-4 py-2 text-slate-200 mb-4 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500">
         <option value="qualities">💎 Qualités</option>
         <option value="feelings">❤️ Ressenti</option>
         <option value="searches">🔍 Ce qu'il/elle recherche</option>
         <option value="shouldKnow">💡 Ce qu'il/elle devrait savoir</option>
       </select>
 
-      <div class="note-input-group">
-        <input [(ngModel)]="noteInput" placeholder="Ajouter une note au profil..." class="note-input"
+      <!-- Changed layout from flex row to vertical stack - input takes full width, button below -->
+      <div class="space-y-3">
+        <input [(ngModel)]="noteInput" placeholder="Ajouter une note au profil..."
+          class="w-full bg-gray-600 border border-gray-500 rounded-lg px-4 py-2 text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
           (keyup.enter)="addProfileNote()" />
-        <button (click)="addProfileNote()" class="btn btn-add" [disabled]="!noteInput.trim()">
+        <button (click)="addProfileNote()"
+          class="w-full bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed text-white font-medium px-6 py-2 rounded-lg transition-all duration-200 transform hover:scale-105 disabled:transform-none shadow-lg"
+          [disabled]="!noteInput.trim()">
           Ajouter
         </button>
       </div>
