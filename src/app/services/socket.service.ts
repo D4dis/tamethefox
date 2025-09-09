@@ -9,9 +9,9 @@ export class SocketService {
   private socket: Socket;
   //https://tamethefox.onrender.com
   constructor() {
-    this.socket = io('http://localhost:3000', {
+    this.socket = io('https://a9130b723e39.ngrok-free.app/', {
       transports: ['websocket', 'polling'],
-      timeout: 60000,
+      // timeout: 60000,
     })
   };
 
