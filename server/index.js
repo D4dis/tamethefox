@@ -33,7 +33,6 @@ io.on('connection', (socket) => {
   socket.on('newUser', (emojiWithNumber) => {
     console.log('👤 Nouvel utilisateur avec:', emojiWithNumber);
 
-    // Extraire l'emoji du format "☀️ 123"
     const emoji = emojiWithNumber.split(' ')[0];
     const userNumber = userCounter++;
 
@@ -42,7 +41,7 @@ io.on('connection', (socket) => {
       socketId: socket.id,
       number: userNumber,
       emoji: emoji,
-      pseudo: `${emoji} ${userNumber}`, // Format: "☀️ 42"
+      pseudo: `${userNumber}`,
       profile: {
         qualities: [],
         feelings: [],
@@ -78,7 +77,7 @@ io.on('connection', (socket) => {
       return;
     }
 
-    // Si data est une string, c'est un message pour le chat général (qu'on ignore)
+    // Si data est une string, c'est un message pour le chat général, pas possible normalement
     // Si data est un objet avec recipientId, c'est un message privé
     if (typeof data === 'object' && data.recipientId && data.message) {
       const recipient = users.get(data.recipientId);
@@ -168,7 +167,13 @@ io.on('connection', (socket) => {
       return;
     }
 
-    // IMPORTANT: Envoyer le profil AVANT la réinitialisation
+    let tamedName = null;
+    tamedNames.forEach((map) => {
+      if (map.has(socket.id)) {
+        tamedName = map.get(socket.id);
+      }
+    });
+    //Envoyer le profil avant la réinitialisation
     socket.emit('my-profile', {
       profile: {
         qualities: [...user.profile.qualities],  // Copie du profil actuel
@@ -177,6 +182,7 @@ io.on('connection', (socket) => {
         shouldKnow: [...user.profile.shouldKnow]
       },
       pseudo: user.pseudo,
+      tamedName: tamedName,
       emoji: user.emoji
     });
 

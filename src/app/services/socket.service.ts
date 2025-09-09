@@ -8,8 +8,10 @@ import { Observable } from 'rxjs';
 export class SocketService {
   private socket: Socket;
   //https://tamethefox.onrender.com
+  //
+  //http://localhost:3000
   constructor() {
-    this.socket = io('http://localhost:3000', {
+    this.socket = io('https://a9130b723e39.ngrok-free.app/', {
       transports: ['websocket', 'polling'],
       timeout: 60000,
     })

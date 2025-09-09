@@ -7,80 +7,84 @@
   </div>
 
   <!-- Message si aucun utilisateur sélectionné -->
-  <div class="no-user-selected" *ngIf="!selectedUserId && isConnected">
-    <div class="empty-state">
-      <span class="empty-icon">💬</span>
-      <h3>Aucune conversation sélectionnée</h3>
-      <p>Sélectionnez un utilisateur dans la liste pour commencer à discuter</p>
+  @if (!selectedUserId && isConnected) {
+    <div class="no-user-selected">
+      <div class="empty-state">
+        <span class="empty-icon">💬</span>
+        <h3>Aucune conversation sélectionnée</h3>
+        <p>Sélectionnez un utilisateur dans la liste pour commencer à discuter</p>
+      </div>
     </div>
-  </div>
+  }
 
   <!-- Interface de chat privé -->
-  <div class="chat-interface" *ngIf="selectedUserId && isConnected">
-    <!-- En-tête de la conversation -->
-    <div class="chat-header">
-      <div class="chat-user-info">
-        <span class="user-emoji">{{ selectedUserEmoji }}</span>
-        <span class="user-name">{{ selectedUserName }}</span>
-      </div>
-      <span class="chat-type">Conversation privée</span>
-    </div>
-
-    <!-- Zone des messages -->
-    <div class="messages-area">
-      <div class="messages-container" #messagesContainer>
-        <!-- Message si pas de messages -->
-        <div class="no-messages" *ngIf="filteredMessages.length === 0">
-          <p>Commencez la conversation avec {{ selectedUserName }} {{ selectedUserEmoji }}</p>
+  @if (selectedUserId && isConnected) {
+    <div class="chat-interface">
+      <!-- En-tête de la conversation -->
+      <div class="chat-header">
+        <div class="chat-user-info">
+          <span class="user-emoji">{{ selectedUserEmoji }}</span>
+          <span class="user-name">{{ selectedUserName }}</span>
         </div>
+        <span class="chat-type">Conversation privée</span>
+      </div>
 
-        <!-- Liste des messages -->
-        <div *ngFor="let msg of filteredMessages; trackBy: trackByMessageId"
-             class="message-wrapper"
-             [ngClass]="getMessageClass(msg)">
+      <!-- Zone des messages -->
+      <div class="messages-area">
+        <div class="messages-container" #messagesContainer>
+          @for (msg of filteredMessages; track trackByMessageId($index, msg)) {
+            <div class="message-wrapper" [ngClass]="getMessageClass(msg)">
+              <div class="message-bubble">
+                <div class="message-header">
+                  <span class="sender-emoji">{{ msg.senderEmote }}</span>
+                  <span class="sender-name">{{ getMessageSenderName(msg) }}</span>
+                  <span class="message-time">{{ formatTimestamp(msg.timestamp) }}</span>
+                </div>
+                <div class="message-text">
+                  {{ msg.message }}
+                </div>
+              </div>
+            </div>
+          } @empty {
+            <div class="no-messages">
+              <p>Commencez la conversation avec {{ selectedUserName }} {{ selectedUserEmoji }}</p>
+            </div>
+          }
+        </div>
+      </div>
 
-          <div class="message-bubble">
-            <div class="message-header">
-              <span class="sender-emoji">{{ msg.senderEmote }}</span>
-              <span class="sender-name">{{ getMessageSenderName(msg) }}</span>
-              <span class="message-time">{{ formatTimestamp(msg.timestamp) }}</span>
-            </div>
-            <div class="message-text">
-              {{ msg.message }}
-            </div>
-          </div>
+      <!-- Formulaire d'envoi de message -->
+      <div class="message-form">
+        <div class="input-group">
+          <input
+            class="message-input"
+            [(ngModel)]="currentMessage"
+            name="message"
+            placeholder="Écrivez votre message..."
+            (keyup.enter)="sendMessage()"
+            [disabled]="!socketConnected">
+
+          <button
+            type="button"
+            class="btn-send"
+            (click)="sendMessage()"
+            [disabled]="!currentMessage?.trim() || !socketConnected">
+            <span class="send-icon">➤</span>
+            Envoyer
+          </button>
         </div>
       </div>
     </div>
-
-    <!-- Formulaire d'envoi de message -->
-    <div class="message-form">
-      <div class="input-group">
-        <input
-          class="message-input"
-          [(ngModel)]="currentMessage"
-          name="message"
-          placeholder="Écrivez votre message..."
-          (keyup.enter)="sendMessage()"
-          [disabled]="!socketConnected">
-
-        <button
-          class="btn-send"
-          (click)="sendMessage()"
-          [disabled]="!currentMessage.trim() || !socketConnected">
-          <span class="send-icon">➤</span>
-          Envoyer
-        </button>
-      </div>
-    </div>
-  </div>
+  }
 
   <!-- Message si pas connecté -->
-  <div class="waiting-connection" *ngIf="!isConnected">
-    <div class="loading-state">
-      <div class="spinner"></div>
-      <h3>Connexion en cours...</h3>
-      <p>Veuillez patienter</p>
+  @if (!isConnected) {
+    <div class="waiting-connection">
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <h3>Connexion en cours...</h3>
+        <p>Veuillez patienter</p>
+      </div>
     </div>
-  </div>
+  }
 </div>

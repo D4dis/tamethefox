@@ -86,10 +86,10 @@ export class UserComponent implements OnInit, OnDestroy {
 
     // S'abonner à la réception du profil avant réinitialisation
     this.subscriptions.push(
-      this.userService.onMyProfile().subscribe(({ profile, pseudo, emoji }) => {
+      this.userService.onMyProfile().subscribe(({ profile, pseudo, emoji, tamedName }) => {
         // Afficher le profil AVANT la réinitialisation
         let profileContent = `🦊 VOTRE PROFIL 🦊\n`;
-        profileContent += `\nIdentité: ${pseudo} ${emoji}\n`;
+        profileContent += `\nIdentité: ${pseudo} ${emoji} ${tamedName}\n`;
         profileContent += `\n==================\n`;
 
         if (profile.qualities && profile.qualities.length > 0) {
@@ -133,7 +133,6 @@ export class UserComponent implements OnInit, OnDestroy {
         this.selectedUser = null;
         this.tamedUsers.clear();
         this.unreadMessages.clear();
-        // Ne pas réinitialiser currentUser, l'utilisateur reste connecté
       })
     );
 
@@ -149,7 +148,6 @@ export class UserComponent implements OnInit, OnDestroy {
     this.subscriptions.push(
       this.userService.onUserTamed().subscribe(({ userId, tamedName }) => {
         this.tamedUsers.set(userId, tamedName);
-        // Re-trier la liste pour placer l'utilisateur apprivoisé en haut
         this.sortUsers(this.users);
       })
     );
@@ -159,7 +157,7 @@ export class UserComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
-  // Trier les utilisateurs (apprivoisés en premier)
+  // Trier les utilisateurs
   private sortUsers(users: User[]): void {
     this.users = users.sort((a, b) => {
       const aTamed = this.tamedUsers.has(a.id);

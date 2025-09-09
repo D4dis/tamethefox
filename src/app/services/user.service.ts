@@ -78,6 +78,7 @@ export class UserService {
     profile: any;
     pseudo: string;
     emoji: string;
+    tamedName: string;
   }> {
     return this.socketService.on('my-profile');
   }
