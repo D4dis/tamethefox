@@ -135,9 +135,11 @@
       <div class="bg-gray-700 rounded-lg p-4">
         <strong class="text-blue-400 block mb-2">🔍 Recherche:</strong>
         <ul class="space-y-1 ml-4">
-          <li *ngFor="let search of selectedUserSearches" class="text-slate-300">
+          @for(search of selectedUserSearches; track search) {
+          <li class="text-slate-300">
             • {{ search }}
           </li>
+          }
         </ul>
       </div>
       }

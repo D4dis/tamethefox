@@ -9,7 +9,7 @@ export class SocketService {
   private socket: Socket;
   //https://tamethefox.onrender.com
   constructor() {
-    this.socket = io('http://localhost:3000', {
+    this.socket = io('https://tamethefox.onrender.com', {
       transports: ['websocket', 'polling'],
       timeout: 60000,
     })
